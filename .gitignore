@@ -1,0 +1,4 @@
+/**/docker/apache/logs/*
+!/**/docker/apache/logs/.gitkeep
+/**/docker/mysql/dbdata/*
+/**/public_html/*

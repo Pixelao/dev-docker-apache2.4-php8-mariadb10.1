@@ -1,0 +1,52 @@
+version: "3.7"
+
+networks:
+  skeleton-docker.network:
+    driver: bridge
+
+services:
+  php:
+    build: ./docker/php
+    restart: always
+    tty: true
+    container_name: skeleton-docker.php
+    depends_on:
+      - mariadb
+    networks:
+      - skeleton-docker.network
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/var/www/app.dev
+
+  apache:
+    build: ./docker/apache
+    restart: always
+    container_name: skeleton-docker.apache
+    networks:
+      - skeleton-docker.network
+    depends_on:
+      - php
+      - mariadb
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/var/www/app.dev
+
+  mariadb:
+    image: mariadb:10.1
+    tty: true
+    restart: always
+    container_name: skeleton-docker.mariadb
+    networks:
+      - skeleton-docker.network
+    ports:
+      - '3306:3306'
+    volumes:
+      - './docker/mysql/config/mariadb.cnf:/etc/mysql/conf.d/custom.cnf:ro'
+      - './docker/mysql/dbdata:/var/lib/mysql'
+    environment:
+      - MYSQL_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=development
